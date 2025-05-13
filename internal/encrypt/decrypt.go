@@ -29,11 +29,11 @@ func DecryptFile(filePath string, keyFile string, mode DecryptionMode) error {
 	var cmd *exec.Cmd
 	if mode == DecryptModeStdout {
 		logging.Debug("Decrypting %s to stdout...", filePath)
-		cmd = exec.Command("sops", "--decrypt", filePath)
+		cmd = execCommand("sops", "--decrypt", filePath)
 		cmd.Stdout = os.Stdout
 	} else {
 		logging.Info("Decrypting %s in-place...", filePath)
-		cmd = exec.Command("sops", "--decrypt", "--in-place", filePath)
+		cmd = execCommand("sops", "--decrypt", "--in-place", filePath)
 	}
 
 	// Set the SOPS_AGE_KEY_FILE environment variable
@@ -122,7 +122,7 @@ func EditFile(filePath string, keyFile string, alwaysUseOnePassword bool) error 
 	// Edit the file using SOPS
 	logging.Info("Opening %s for editing...", filePath)
 
-	cmd := exec.Command("sops", filePath)
+	cmd := execCommand("sops", filePath)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("SOPS_AGE_KEY_FILE=%s", keyPath))
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -144,7 +144,7 @@ func DecryptToFile(inputPath string, outputPath string, keyFile string) error {
 	}
 
 	// Set up the command
-	cmd := exec.Command("sops", "--decrypt", inputPath)
+	cmd := execCommand("sops", "--decrypt", inputPath)
 
 	// Create or truncate the output file
 	outputFile, err := os.Create(outputPath)

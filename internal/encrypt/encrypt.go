@@ -3,7 +3,6 @@ package encrypt
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"simple-sops/internal/config"
 	"simple-sops/internal/keymgmt"
@@ -45,7 +44,7 @@ func EncryptFile(filePath string, keyFile string, configPath string) error {
 	logging.Info("Encrypting %s...", filePath)
 
 	// Set the SOPS_AGE_KEY_FILE environment variable
-	cmd := exec.Command("sops", "--encrypt", "--age", pubKey, "--in-place", filePath)
+	cmd := execCommand("sops", "--encrypt", "--age", pubKey, "--in-place", filePath)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("SOPS_AGE_KEY_FILE=%s", keyFile))
 
 	output, err := cmd.CombinedOutput()
@@ -66,7 +65,6 @@ func EncryptFilesWithMultipleKeys(filePaths []string, keyFiles []string, pubKeys
 	}
 
 	var keyPath string
-	// Remove the unused isTemp variable
 	var err error
 
 	// Create a temporary directory for the combined key
@@ -196,7 +194,6 @@ func EncryptFilesWithMultipleKeys(filePaths []string, keyFiles []string, pubKeys
 
 	// Set keyPath to the combined key file path
 	keyPath = combinedKeyPath
-	// Remove the isTemp assignment - we use defer for cleanup instead
 
 	// Get public keys from the combined key file
 	var allPubKeys []string
@@ -259,7 +256,7 @@ func EncryptFilesWithMultipleKeys(filePaths []string, keyFiles []string, pubKeys
 		logging.Info("Encrypting %s with multiple keys...", filePath)
 
 		// Use multiple Age recipients (comma-separated)
-		cmd := exec.Command("sops", "--encrypt", "--age", pubKeyStr, "--in-place", filePath)
+		cmd := execCommand("sops", "--encrypt", "--age", pubKeyStr, "--in-place", filePath)
 		cmd.Env = append(os.Environ(), fmt.Sprintf("SOPS_AGE_KEY_FILE=%s", keyPath))
 
 		output, err := cmd.CombinedOutput()

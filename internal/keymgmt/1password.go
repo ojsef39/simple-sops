@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"simple-sops/pkg/logging"
 	"strings"
@@ -110,7 +109,7 @@ func GetKeysFromOnePassword(items []OnePasswordItem) (string, bool, error) {
 // getKeyContentFromOnePassword retrieves the key content from a 1Password item
 func getKeyContentFromOnePassword(item OnePasswordItem) (string, error) {
 	// Get the key from 1Password
-	cmd := exec.Command("op", "item", "get", item.ItemName, "--vault", item.VaultName, "--format", "json")
+	cmd := execCommand("op", "item", "get", item.ItemName, "--vault", item.VaultName, "--format", "json")
 	output, err := cmd.Output()
 	if err != nil {
 		return "", fmt.Errorf("failed to get key from 1Password: %w", err)
@@ -140,7 +139,7 @@ func getKeyContentFromOnePassword(item OnePasswordItem) (string, error) {
 
 // checkOnePasswordCLI checks if the 1Password CLI is available
 func checkOnePasswordCLI() error {
-	_, err := exec.LookPath("op")
+	_, err := lookPathFunc("op")
 	if err != nil {
 		return fmt.Errorf("1Password CLI (op) not found in PATH. Please install it and try again")
 	}
